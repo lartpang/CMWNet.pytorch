@@ -3,10 +3,9 @@
 # @Author  : Lart Pang
 # @GitHub  : https://github.com/lartpang
 
-import abc
 import os
 import random
-from collections import defaultdict
+from collections import abc, defaultdict
 from numbers import Number
 from typing import List
 
@@ -330,3 +329,9 @@ def change_lr(optimizer, curr_idx, total_num, lr_decay):
     ratio = pow((1 - float(curr_idx) / total_num), lr_decay)
     optimizer.param_groups[0]["lr"] = optimizer.param_groups[0]["lr"] * ratio
     optimizer.param_groups[1]["lr"] = optimizer.param_groups[0]["lr"]
+
+
+def mkdir_if_not_exist(path_list: list):
+    for path in path_list:
+        if not os.path.exists(path):
+            os.makedirs(path)

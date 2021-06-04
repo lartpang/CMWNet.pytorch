@@ -91,10 +91,10 @@ DUTRGBD_TR = dict(
 )
 
 rgbd_sod_data = dict(
-    nlprtrdmra=NLPR_TR,
-    njudtrdmra=NJUD_TR,
-    nlprtedmra=NLPR_TE,
-    njudtedmra=NJUD_TE,
+    nlprtr=NLPR_TR,
+    njudtr=NJUD_TR,
+    nlprte=NLPR_TE,
+    njudte=NJUD_TE,
     lfsd=LFSD,
     rgbd135=RGBD135,
     sip=SIP,

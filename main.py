@@ -20,6 +20,7 @@ from utils import (
     imresize,
     initialize_seed_cudnn,
     mapping_to_str,
+    mkdir_if_not_exist,
     read_gray_array,
     save_array_as_image,
     to_device,
@@ -30,8 +31,8 @@ from utils import (
 def test_model():
     model.eval()
     for data_name, data_path, te_loader in get_te_loader(
-        dataset_info=dataset_info,
-        shape=shape,
+        dataset_info=dataset_info["test"]["path"],
+        shape=dataset_info["test"]["shape"],
         batch_size=batch_size,
         num_workers=num_workers,
     ):
@@ -69,10 +70,10 @@ def test_model():
 
 def train_model():
     tr_loader = get_tr_loader(
-        dataset_info=dataset_info,
+        dataset_info=dataset_info["train"]["path"],
+        shape=dataset_info["train"]["shape"],
         batch_size=batch_size,
         num_workers=num_workers,
-        shape=shape,
     )
     epoch_length = len(tr_loader)
 
@@ -122,7 +123,8 @@ def train_model():
             ):
                 msg = (
                     f"[I:{curr_iter}:{num_iters} ({iter_in_epoch}/{epoch_length}/{curr_epoch})]"
-                    f"[Lr:{optim.lr_string()}][M:{loss_recorder.avg:.5f},C:{item_loss:.5f}]"
+                    f"[Lr:{[round(x['lr'], 5) for x in optim.param_groups]}]"
+                    f"[M:{loss_recorder.avg:.5f},C:{item_loss:.5f}]"
                     f"{list(data_shape)}"
                     f"\n{loss_str}"
                 )
@@ -147,7 +149,7 @@ grad_acc_step = 1
 log_interval = 20
 exp_name = (
     f"cmwnet_amp{'Y' if use_amp else 'N'}_i{num_iters}_bs{batch_size}_lr{lr}_ld{lr_decay}_wd{weight_decay}"
-    f"_s{list(shape.values())}_ga{grad_acc_step}"
+    f"_h{shape['h']}w{shape['w']}_ga{grad_acc_step}"
 )
 
 proj_root = os.path.dirname(os.path.abspath(__file__))
@@ -155,6 +157,8 @@ ckpt_path = os.path.join(proj_root, "output")
 pth_log_path = os.path.join(ckpt_path, exp_name)
 save_path = os.path.join(pth_log_path, "pre")
 pth_path = os.path.join(pth_log_path, "pth")
+mkdir_if_not_exist(path_list=[ckpt_path, pth_path, save_path, pth_path])
+
 final_state_path = os.path.join(pth_path, "state_final.pth")
 tr_log_path = os.path.join(pth_log_path, f"tr_{str(datetime.now())[:10]}.txt")
 te_log_path = os.path.join(pth_log_path, f"te_{str(datetime.now())[:10]}.txt")
@@ -176,7 +180,7 @@ dataset_info = dict(
             ("rgbd135", rgbd_sod_data["rgbd135"]),
             ("sip", rgbd_sod_data["sip"]),
             ("ssd", rgbd_sod_data["ssd"]),
-            ("stereo1000", rgbd_sod_data["stereo1000"]),
+            ("stere", rgbd_sod_data["stere"]),
         ],
     ),
 )
